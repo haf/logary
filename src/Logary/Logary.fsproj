@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Logary</RootNamespace>
     <AssemblyName>Logary</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <Name>Logary</Name>
     <Id>Intelliplan.Logary</Id>
   </PropertyGroup>
@@ -84,12 +84,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FSharp.Actor-logary\src\FSharp.Actor\FSharp.Actor-logary.fsproj">
-      <Name>FSharp.Actor-logary</Name>
-      <Project>{AA4BC25B-04F7-4B39-BF28-0B0058193ED9}</Project>
-    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <!-- This will give us the opportunity to sign Logary -->
@@ -272,4 +266,10 @@
       </ItemGroup>
     </When>
   </Choose>
+  <ItemGroup>
+    <ProjectReference Include="..\Cricket\src\Cricket\Cricket.fsproj">
+      <Project>{AA4BC25B-04F7-4B39-BF28-0B0058193ED9}</Project>
+      <Name>Cricket</Name>
+    </ProjectReference>
+  </ItemGroup>
 </Project>

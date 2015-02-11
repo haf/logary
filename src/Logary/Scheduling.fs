@@ -5,13 +5,13 @@ module Logary.Internals.Scheduling
 // creds to Dave Thomas for his F# snippet
 open System.Threading
   
-open FSharp.Actor
+open Cricket
 
 open NodaTime
 
 type ScheduleMsg =
-  | Schedule of (obj -> unit) * obj * Duration * Duration * CancellationTokenSource ReplyChannel
-  | ScheduleOnce of (obj -> unit) * obj * Duration * CancellationTokenSource ReplyChannel
+  | Schedule of (obj -> unit) * obj * Duration * Duration
+  | ScheduleOnce of (obj -> unit) * obj * Duration
 
 module private Impl =
 
@@ -37,25 +37,29 @@ module private Impl =
     }
     loop initialDelay cts
 
-  let loop (inbox : IActor<_>) =
-    let rec loop () = async {
-      let! msg, _ = inbox.Receive ()
+  let loop =
+    let rec loop () = messageHandler {
+      let! msg = Message.receive ()
       let cts = new CancellationTokenSource()
       match msg with
-      | Schedule (receiver, msg : 'a, initialDelay, delayBetween, replyChan) ->
+      | Schedule (receiver, msg : 'a, initialDelay, delayBetween) ->
         Async.StartImmediate (scheduleMany (ms initialDelay) msg receiver (ms delayBetween) cts)
-        replyChan.Reply cts
+        do! Message.reply cts
         return! loop ()
-      | ScheduleOnce (receiver, msg:'a, delay, replyChan) ->
+      | ScheduleOnce (receiver, msg:'a, delay) ->
         Async.StartImmediate (scheduleOnce delay msg receiver cts)
-        replyChan.Reply cts
+        do! Message.reply cts
         return! loop ()
     }
     loop ()
 
 /// Create a new scheduler actor
 let create () =
-  Actor.spawn (Ns.create "scheduler") Impl.loop
+  let scheduler = actor {
+    name (Ns.create "scheduler")
+    body Impl.loop
+  }
+  Actor.spawn scheduler
 
 /// Schedules a message to be sent to the receiver after the initialDelay.
 /// If delayBetween is specified then the message is sent reoccuringly at the
@@ -63,15 +67,15 @@ let create () =
 let schedule scheduler (receiver : 'a -> unit) (msg : 'a) initialDelay (delayBetween : _ option) =
   // this is specific to scheduling/sending to actors:
   let swallowInvalidState f x =
-    try
+    //try
       f x
-    with
-    | Actor.ActorInvalidStatus _ -> ()
+    //with
+    //| Actor.ActorInvalidStatus _ -> ()
 
-  let buildMessage replyChan =
+  let buildMessage () =
     match delayBetween with
     | Some x ->
-      Schedule (unbox >> swallowInvalidState(receiver), msg, initialDelay, x, replyChan)
+      Schedule (unbox >> swallowInvalidState(receiver), msg, initialDelay, x)
     | _ ->
-      ScheduleOnce (unbox >> receiver, msg, initialDelay, replyChan)
-  scheduler |> Actor.reqReply buildMessage Infinite
+      ScheduleOnce (unbox >> receiver, msg, initialDelay)
+  Message.post scheduler buildMessage

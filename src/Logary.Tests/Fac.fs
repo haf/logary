@@ -48,10 +48,7 @@ let withLogary f =
     |> Config.validate
     |> runLogary
 
-  try
-    f logary out err
-  finally
-    finaliseLogary logary
+  f logary out err
 
 let finaliseTarget = Target.shutdown >> fun a ->
   let acks = Async.RunSynchronously(a, 1000)

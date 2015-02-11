@@ -1,6 +1,5 @@
 ﻿namespace Logary
 
-open FSharp.Actor
 open NodaTime
 
 type TimeUnit =
@@ -88,8 +87,6 @@ type Measure =
 /// Module for dealing with measures
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Measure =
-  open FSharp.Actor
-
   open NodaTime
 
   open Logary

@@ -1,7 +1,7 @@
 ﻿namespace Logary.Internals
 
 module internal Ns =
-  open FSharp.Actor
+  open Cricket
 
   /// The actor's root namespace
   [<Literal>]
@@ -11,7 +11,6 @@ module internal Ns =
   /// A single place to create Actor options -- until FSharp.Actor changes again
   let create subcomponent =
     sprintf "%s/%s" ActorRootNs subcomponent
-    |> fun str -> Actor.Options.Create str
 
 module internal Seq =
   let all f s = Seq.fold (fun acc t -> acc && f t) true s

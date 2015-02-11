@@ -4,7 +4,7 @@ open System
 
 open NodaTime
 
-open FSharp.Actor
+open Cricket
 
 open Logary.Internals
 
