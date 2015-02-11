@@ -28,6 +28,12 @@ let textWriter () =
   let sb = new StringBuilder()
   new StringWriter(sb)
 
+let finaliseLogary = Config.shutdown >> fun a ->
+  let state = Async.RunSynchronously a
+  (because "finalise should always work" <| fun () ->
+    if state.Successful then () else Tests.failtestf "finaliseLogary failed %A" state)
+  |> thatsIt
+
 let withLogary f =
   let out, err = textWriter (), textWriter ()
 
@@ -42,13 +48,10 @@ let withLogary f =
     |> Config.validate
     |> runLogary
 
-  f logary out err
-
-let finaliseLogary = Config.shutdown >> fun a ->
-  let state = Async.RunSynchronously a
-  (because "finalise should always work" <| fun () ->
-    if state.Successful then () else Tests.failtestf "finaliseLogary failed %A" state)
-  |> thatsIt
+  try
+    f logary out err
+  finally
+    finaliseLogary logary
 
 let finaliseTarget = Target.shutdown >> fun a ->
   let acks = Async.RunSynchronously(a, 1000)

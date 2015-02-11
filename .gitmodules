@@ -1,3 +1,6 @@
 [submodule "src/FSharp.Actor-logary"]
 	path = src/FSharp.Actor-logary
 	url = https://github.com/logary/FSharp.Actor-logary.git
+[submodule "src/Cricket"]
+	path = src/Cricket
+	url = https://github.com/fsprojects/Cricket.git
