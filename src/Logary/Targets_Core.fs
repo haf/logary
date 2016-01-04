@@ -91,6 +91,7 @@ module TextWriter =
 
 /// The console Target for Logary
 module Console =
+  open System
   open Logary
   open Logary.Formatting
   open Logary.Target
@@ -117,8 +118,8 @@ module Console =
     // TODO: coloured console output
     TextWriter.create
       { formatter = conf.formatter
-        output    = System.Console.Out
-        error     = System.Console.Error
+        output    = Console.Out
+        error     = Console.Error
         flush     = false
         isErrorAt = Error }
 

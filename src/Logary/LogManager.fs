@@ -18,7 +18,7 @@ type RegistryMessage =
   /// Flush all pending messages from the registry to await shutdown and ack on
   /// the `ackCh` when done. If the client nacks the request, the `nack` promise
   /// is filled with a unit value.
-  | FlushPending of ackCh:Ch<unit> * nack:Promise<unit>
+  | FlushPending of ackCh:IVar<unit> * nack:Promise<unit>
 
   /// shutdown the registry in full
   | ShutdownLogary of ackCh:Ch<unit> * nack:Promise<unit>

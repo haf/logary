@@ -1,6 +1,8 @@
 ﻿namespace Logary
 
 open Hopac
+open System
+open Logary
 
 /// See the docs on Logger.log for a description on how Ack works in conjunction
 /// with the promise.
@@ -49,18 +51,12 @@ type Logger =
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Logger =
-  open System
-  open Logary
-
-  /////////////////////
-  // Logging methods //
-  /////////////////////
 
   let private ensureName (logger : Logger) (msg : Message) =
     match msg.name with
     | PointName [] -> 
       Message.setName logger.name msg
-      
+
     | _  ->
       msg
 
@@ -97,22 +93,46 @@ module Logger =
   [<CompiledName "Verbose">]
   let verbose logger = log logger << Message.event LogLevel.Verbose
 
+  /// Write a verbose log entry to the logger and get an Ack back (a Hopac promise)
+  [<CompiledName "Verbose">]
+  let verboseWithAck logger = logWithAck logger << Message.event LogLevel.Verbose
+
   /// Write a debug log entry to the logger
   [<CompiledName "Debug">]
   let debug logger = log logger << Message.event LogLevel.Debug
+
+  /// Write a debug log entry to the logger and get an Ack back (a Hopac promise)
+  [<CompiledName "DebugWithAck">]
+  let debugWithAck logger = logWithAck logger << Message.event LogLevel.Debug
 
   /// Write an info log entry to the logger
   [<CompiledName "Info">]
   let info logger = log logger << Message.event LogLevel.Info
 
+  /// Write a info log entry to the logger and get an Ack back (a Hopac promise)
+  [<CompiledName "InfoWithAck">]
+  let infoWithAck logger = logWithAck logger << Message.event LogLevel.Info
+
   /// Write a warn log entry
   [<CompiledName "Warn">]
   let warn logger = log logger << Message.event LogLevel.Warn
+
+  /// Write a warn log entry to the logger and get an Ack back (a Hopac promise)
+  [<CompiledName "WarnWithAck">]
+  let warnWithAck logger = logWithAck logger << Message.event LogLevel.Warn
 
   /// Write an error log entry
   [<CompiledName "Error">]
   let error logger = log logger << Message.event LogLevel.Error
 
+  /// Write an error log entry and get an Ack back (a Hopac promise)
+  [<CompiledName "ErrorWithAck">]
+  let errorWithAck logger = logWithAck logger << Message.event LogLevel.Error
+
   /// Write a fatal log entry
   [<CompiledName "Fatal">]
   let fatal logger = log logger << Message.event LogLevel.Fatal
+
+  /// Write a fatal log entry and get an Ack back (a Hopac promise)
+  [<CompiledName "FatalWithAck">]
+  let fatalWithAck logger = logWithAck logger << Message.event LogLevel.Fatal

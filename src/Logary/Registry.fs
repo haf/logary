@@ -4,6 +4,7 @@ module Logary.Registry
 open System.Threading
 
 open Hopac
+open Hopac.Extensions
 open Hopac.Infixes
 open NodaTime
 open Logary.Utils.Aether
@@ -322,13 +323,14 @@ module Advanced =
 
           return! running state
 
-        | FlushPending(ackCh, nack) ->
+        | FlushPending(ack, nack) ->
           do! Message.info "flush start" |> log
 
           let! allFlushed =
             targets
-            |> Seq.pjmap (fun t -> Target.flush t    ^->. Success Ack <|>
-                                   timeOutMillis 200 ^->. TimedOut)
+            |> Seq.Con.mapJob (fun t ->
+              Target.flush t    ^->. Success Ack <|>
+              timeOutMillis 200 ^->. TimedOut)
 
           let flushed, notFlushed =
             allFlushed
@@ -336,12 +338,12 @@ module Advanced =
             |> bisectSuccesses
 
           if List.isEmpty notFlushed then
-            do! Message.info "flush Ack" |> log
+            do! Message.info "flush succeeded" |> log
           else
             let msg = sprintf "Failed target flushes:%s%s" nl (toTextList notFlushed)
-            do! Message.errorf "flush Nack - %s" msg |> log
+            do! Message.errorf "flush failed - %s" msg |> log
 
-          do! Ch.give ackCh () <|> nack
+          do! ack *<= ()
 
           return! running state
 

@@ -76,8 +76,11 @@ module internal Logging =
               if accept msg then Some t else None)
 
           match targets with
-          | []      -> Alt.always (Promise.Now.withValue ())
-          | targets -> msg |> send targets
+          | []      ->
+            Alt.always (Promise.Now.withValue ())
+
+          | targets ->
+            msg |> send targets
 
 
 /// This logger is special: in the above case the Registry takes the responsibility

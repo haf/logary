@@ -35,17 +35,15 @@ let registry =
         |> thatsIt
 
     yield testCase "after shutting down no logging happens" <| fun _ ->
-      printfn "next"
       Fac.withLogary <| fun logary out err ->
         let logger = (pnp "a.b.c.d") |> Registry.getLogger logary.registry |> run
         (because "logging something, then shutting down" <| fun () ->
-          "hi there" |> Logger.info logger |> run
           logary |> Config.shutdownSimple |> run |> ignore
-          printfn "unit test back in control"
+          "hi there" |> Logger.info logger |> run
           let didLog =
             Alt.choose [
               timeOut (TimeSpan.FromMilliseconds 20.0) ^->. false
-              ("after shutdown" |> Logger.info logger) ^->. true
+              (("after shutdown" |> Logger.infoWithAck logger) ^-> id) ^->. true
             ] |> run
           Assert.Equal("should be false", false, didLog)
           logary |> finaliseLogary
